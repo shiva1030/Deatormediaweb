@@ -13,22 +13,84 @@ const BlackHoleBackground = () => {
     let h = canvas.height = window.innerHeight;
     let mouse = { x: w / 2, y: h / 2, isActive: false };
 
-    const handleResize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+    const handleResize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
     const handleMouseMove = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.isActive = true; };
     const handleMouseLeave = () => { mouse.isActive = false; };
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseout', handleMouseLeave);
 
-    class Star {
-      x = Math.random() * w;
-      y = Math.random() * h;
-      vx = (Math.random() - 0.5) * 1;
-      vy = (Math.random() - 0.5) * 1;
-      radius = Math.random() * 1.8 + 0.3;
-      color = `hsla(346, 70%, ${Math.floor(Math.random() * 30 + 70)}%, ${Math.random() * 0.55 + 0.25})`;
+    // --- Draw deep space nebula background once ---
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.width = w; bgCanvas.height = h;
+    const bgCtx = bgCanvas.getContext('2d')!;
 
-      update() {
+    // Deep space base
+    bgCtx.fillStyle = '#020408';
+    bgCtx.fillRect(0, 0, w, h);
+
+    // Subtle nebula blobs
+    const nebulas = [
+      { x: w * 0.2, y: h * 0.3, r: 300, color: 'rgba(60, 0, 80, 0.07)' },
+      { x: w * 0.8, y: h * 0.6, r: 250, color: 'rgba(0, 20, 80, 0.07)' },
+      { x: w * 0.5, y: h * 0.8, r: 200, color: 'rgba(80, 0, 30, 0.06)' },
+      { x: w * 0.1, y: h * 0.8, r: 180, color: 'rgba(0, 40, 80, 0.05)' },
+      { x: w * 0.9, y: h * 0.2, r: 220, color: 'rgba(60, 10, 50, 0.06)' },
+    ];
+    nebulas.forEach(n => {
+      const g = bgCtx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
+      g.addColorStop(0, n.color);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      bgCtx.beginPath();
+      bgCtx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      bgCtx.fillStyle = g;
+      bgCtx.fill();
+    });
+
+    // --- Star class with twinkle/glow ---
+    class Star {
+      x: number; y: number; vx: number; vy: number;
+      baseRadius: number; radius: number;
+      baseOpacity: number; opacity: number;
+      color: string; twinkleSpeed: number; twinklePhase: number;
+      glows: boolean;
+
+      constructor() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
+        this.baseRadius = Math.random() * 1.5 + 0.3;
+        this.radius = this.baseRadius;
+        this.baseOpacity = Math.random() * 0.5 + 0.3;
+        this.opacity = this.baseOpacity;
+        this.twinkleSpeed = Math.random() * 0.03 + 0.01;
+        this.twinklePhase = Math.random() * Math.PI * 2;
+        // Most stars are white/blue-white; some have theme tint
+        const r = Math.random();
+        if (r > 0.85) {
+          // Theme pink-red tint
+          this.color = `255, 120, 150`;
+        } else if (r > 0.7) {
+          // Blue-white
+          this.color = `180, 210, 255`;
+        } else {
+          // Pure white
+          this.color = `255, 255, 255`;
+        }
+        this.glows = Math.random() > 0.75; // 25% of stars glow
+      }
+
+      update(time: number) {
+        // Twinkle: radius and opacity oscillate
+        const twinkle = Math.sin(time * this.twinkleSpeed + this.twinklePhase);
+        this.radius = this.baseRadius + twinkle * this.baseRadius * 0.5;
+        this.opacity = this.baseOpacity + twinkle * 0.15;
+
+        // Gravity pull
         const dx = mouse.x - this.x;
         const rect = canvas?.getBoundingClientRect();
         const relY = mouse.y - (rect?.top || 0);
@@ -42,17 +104,17 @@ const BlackHoleBackground = () => {
           this.vx += fx * force * 1.5 + fy * force * 0.6;
           this.vy += fy * force * 1.5 - fx * force * 0.6;
         } else {
-          this.vx *= 0.98; this.vy *= 0.98;
-          this.vx += (Math.random() - 0.5) * 0.15;
-          this.vy += (Math.random() - 0.5) * 0.15;
+          this.vx *= 0.97; this.vy *= 0.97;
+          this.vx += (Math.random() - 0.5) * 0.05;
+          this.vy += (Math.random() - 0.5) * 0.05;
         }
 
         const sp = Math.sqrt(this.vx ** 2 + this.vy ** 2);
-        const maxSp = mouse.isActive && dist < maxD ? 18 : 2;
+        const maxSp = mouse.isActive && dist < maxD ? 16 : 1.5;
         if (sp > maxSp) { this.vx = (this.vx / sp) * maxSp; this.vy = (this.vy / sp) * maxSp; }
         this.x += this.vx; this.y += this.vy;
 
-        if (mouse.isActive && dist < 10) {
+        if (mouse.isActive && dist < 12) {
           this.x = Math.random() > 0.5 ? 0 : w;
           this.y = Math.random() * h;
           this.vx = 0; this.vy = 0;
@@ -62,38 +124,60 @@ const BlackHoleBackground = () => {
       }
 
       draw() {
+        const op = Math.max(0, Math.min(1, this.opacity));
+
+        if (this.glows) {
+          // Soft outer glow
+          const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 4);
+          glow.addColorStop(0, `rgba(${this.color}, ${op * 0.4})`);
+          glow.addColorStop(1, `rgba(${this.color}, 0)`);
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius * 4, 0, Math.PI * 2);
+          ctx.fillStyle = glow;
+          ctx.fill();
+          ctx.closePath();
+        }
+
+        // Star core
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, Math.max(0.2, this.radius), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${op})`;
         ctx.fill();
         ctx.closePath();
       }
     }
 
-    const stars = Array.from({ length: 400 }, () => new Star());
+    const stars = Array.from({ length: 450 }, () => new Star());
 
     let animId: number;
+    let time = 0;
     const animate = () => {
-      ctx.fillStyle = 'rgba(5, 5, 10, 0.22)';
+      time++;
+
+      // Draw static bg
+      ctx.drawImage(bgCanvas, 0, 0);
+
+      // Dim overlay for motion trails
+      ctx.fillStyle = 'rgba(2, 4, 8, 0.3)';
       ctx.fillRect(0, 0, w, h);
 
+      // Black hole glow at mouse
       if (mouse.isActive) {
         const rect = canvas?.getBoundingClientRect();
         const relY = mouse.y - (rect?.top || 0);
-        const grad = ctx.createRadialGradient(mouse.x, relY, 0, mouse.x, relY, 160);
+        const grad = ctx.createRadialGradient(mouse.x, relY, 0, mouse.x, relY, 180);
         grad.addColorStop(0, 'rgba(0,0,0,1)');
-        grad.addColorStop(0.1, 'rgba(20,0,10,0.9)');
-        grad.addColorStop(0.4, 'hsla(346, 82%, 46%, 0.25)');
+        grad.addColorStop(0.08, 'rgba(10,0,5,0.95)');
+        grad.addColorStop(0.35, 'hsla(346, 82%, 46%, 0.2)');
         grad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.beginPath();
-        ctx.arc(mouse.x, relY, 160, 0, Math.PI * 2);
+        ctx.arc(mouse.x, relY, 180, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
         ctx.closePath();
       }
 
-      ctx.shadowBlur = 0;
-      stars.forEach(s => { s.update(); s.draw(); });
+      stars.forEach(s => { s.update(time); s.draw(); });
       animId = requestAnimationFrame(animate);
     };
 

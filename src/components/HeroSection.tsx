@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import BlackHoleBackground from "./ui/BlackHoleBackground";
 
 const FloatingShape = ({ className, delay = 0 }: { className: string; delay?: number }) => (
   <motion.div
@@ -19,17 +20,12 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-      <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px] animate-pulse-glow" />
-      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-primary/8 blur-[100px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
-
-      {/* Floating shapes */}
-      <FloatingShape className="w-20 h-20 top-[20%] left-[10%]" delay={0} />
-      <FloatingShape className="w-14 h-14 top-[60%] right-[15%]" delay={1} />
-      <FloatingShape className="w-32 h-32 bottom-[15%] left-[60%] bg-primary/5" delay={2} />
-      <FloatingShape className="w-10 h-10 top-[30%] right-[30%]" delay={0.5} />
+    <section id="hero" className="relative min-h-screen flex items-center overflow-hidden bg-[#05050a]">
+      {/* Black Hole Gravity Background */}
+      <BlackHoleBackground />
+      
+      {/* Overlay gradient for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background pointer-events-none" />
 
       <div className="container mx-auto px-6 relative z-10 pt-24">
         <div className="max-w-4xl">

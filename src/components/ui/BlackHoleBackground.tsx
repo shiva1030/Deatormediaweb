@@ -61,8 +61,8 @@ const BlackHoleBackground = () => {
       constructor() {
         this.x = Math.random() * w;
         this.y = Math.random() * h;
-        this.vx = (Math.random() - 0.5) * 0.4;
-        this.vy = (Math.random() - 0.5) * 0.4;
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = (Math.random() - 0.5) * 1.2;
         this.baseRadius = Math.random() * 1.5 + 0.3;
         this.radius = this.baseRadius;
         this.baseOpacity = Math.random() * 0.5 + 0.3;
@@ -96,28 +96,30 @@ const BlackHoleBackground = () => {
         const relY = mouse.y - (rect?.top || 0);
         const dy = relY - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const maxD = 700;
+        const maxD = 900; // bigger pull radius = more space
         const force = Math.max(0, (maxD - dist) / maxD);
 
         if (mouse.isActive && dist < maxD) {
           const fx = dx / dist; const fy = dy / dist;
-          this.vx += fx * force * 0.55 + fy * force * 0.2;
-          this.vy += fy * force * 0.55 - fx * force * 0.2;
+          // Strong gravity + strong swirl so stars spiral in dramatically, not circle
+          this.vx += fx * force * force * 1.8 + fy * force * 1.0;
+          this.vy += fy * force * force * 1.8 - fx * force * 1.0;
         } else {
-          this.vx *= 0.96; this.vy *= 0.96;
-          this.vx += (Math.random() - 0.5) * 0.03;
-          this.vy += (Math.random() - 0.5) * 0.03;
+          this.vx *= 0.975; this.vy *= 0.975;
+          this.vx += (Math.random() - 0.5) * 0.04;
+          this.vy += (Math.random() - 0.5) * 0.04;
         }
 
         const sp = Math.sqrt(this.vx ** 2 + this.vy ** 2);
-        const maxSp = mouse.isActive && dist < maxD ? 6 : 0.8;
+        const maxSp = mouse.isActive && dist < maxD ? 12 : 1.2;
         if (sp > maxSp) { this.vx = (this.vx / sp) * maxSp; this.vy = (this.vy / sp) * maxSp; }
         this.x += this.vx; this.y += this.vy;
 
-        if (mouse.isActive && dist < 12) {
-          this.x = Math.random() > 0.5 ? 0 : w;
-          this.y = Math.random() * h;
-          this.vx = 0; this.vy = 0;
+        if (mouse.isActive && dist < 30) { // larger event horizon = more visual space before consumption
+          this.x = Math.random() > 0.5 ? Math.random() * w : (Math.random() > 0.5 ? 0 : w);
+          this.y = Math.random() > 0.5 ? Math.random() * h : (Math.random() > 0.5 ? 0 : h);
+          this.vx = (Math.random() - 0.5) * 1.5;
+          this.vy = (Math.random() - 0.5) * 1.5;
         }
         if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
         if (this.y < 0) this.y = h; if (this.y > h) this.y = 0;
@@ -158,7 +160,7 @@ const BlackHoleBackground = () => {
       ctx.drawImage(bgCanvas, 0, 0);
 
       // Dim overlay for motion trails — slower fade for smoother trails
-      ctx.fillStyle = 'rgba(2, 4, 8, 0.18)';
+      ctx.fillStyle = 'rgba(2, 4, 8, 0.15)';
       ctx.fillRect(0, 0, w, h);
 
       // Black hole glow at mouse

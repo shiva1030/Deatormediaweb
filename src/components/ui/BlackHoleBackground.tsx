@@ -41,52 +41,60 @@ const BlackHoleBackground = () => {
       vy: number;
       radius: number;
       color: string;
+      isPlanet: boolean;
 
       constructor(x?: number, y?: number) {
         this.x = x || Math.random() * w;
         this.y = y || Math.random() * h;
-        this.vx = (Math.random() - 0.5) * 1.5;
-        this.vy = (Math.random() - 0.5) * 1.5;
-        this.radius = Math.random() * 2 + 0.5;
-        this.color = `rgba(${Math.floor(Math.random() * 100 + 155)}, ${Math.floor(Math.random() * 100 + 155)}, 255, ${Math.random() * 0.6 + 0.2})`;
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = (Math.random() - 0.5) * 1.2;
+        
+        // Some are "planets" (larger), most are stars
+        this.isPlanet = Math.random() > 0.96;
+        this.radius = this.isPlanet ? Math.random() * 4 + 3 : Math.random() * 1.5 + 0.5;
+        
+        // Theme Colors: HSL(346, 82%, 46%) is the primary pink/red
+        if (this.isPlanet) {
+          // Planets have more solid theme colors
+          this.color = `hsla(346, 82%, ${Math.floor(Math.random() * 20 + 40)}%, ${Math.random() * 0.4 + 0.6})`;
+        } else {
+          // Stars are lighter, more ethereal
+          this.color = `hsla(346, 70%, ${Math.floor(Math.random() * 30 + 70)}%, ${Math.random() * 0.6 + 0.2})`;
+        }
       }
 
       update() {
         let dx = mouse.x - this.x;
-        // Adjust mouse Y relative to the canvas position (important if user scrolls!)
         let rect = canvas?.getBoundingClientRect();
         let relativeMouseY = mouse.y - (rect?.top || 0);
         let dy = relativeMouseY - this.y;
         
         let distance = Math.sqrt(dx * dx + dy * dy);
         
-        // Gravity effect
-        const maxDistance = 600; // Pull radius
+        const maxDistance = 700; 
         let force = (maxDistance - distance) / maxDistance;
         if (force < 0) force = 0;
         
         if (mouse.isActive && distance < maxDistance) {
-          const gravity = 1.2; // Strength of black hole pull
+          // Planets have more inertia (pulled slightly less or slower acceleration)
+          const gravity = this.isPlanet ? 0.8 : 1.4; 
           const forceDirectionX = dx / distance;
           const forceDirectionY = dy / distance;
           
           this.vx += forceDirectionX * force * gravity;
           this.vy += forceDirectionY * force * gravity;
           
-          // Tangential force (creates the swirl/vortex effect)
-          const swirlStrength = 0.5;
+          const swirlStrength = this.isPlanet ? 0.3 : 0.6;
           this.vx += forceDirectionY * force * swirlStrength;
           this.vy -= forceDirectionX * force * swirlStrength;
         } else {
-          // Slow down and gently drift when mouse is not active or out of range
-          this.vx *= 0.98;
-          this.vy *= 0.98;
-          this.vx += (Math.random() - 0.5) * 0.3;
-          this.vy += (Math.random() - 0.5) * 0.3;
+          this.vx *= 0.99;
+          this.vy *= 0.99;
+          this.vx += (Math.random() - 0.5) * 0.2;
+          this.vy += (Math.random() - 0.5) * 0.2;
         }
         
-        // friction / speed limit
-        const maxSpeed = mouse.isActive && distance < maxDistance ? 15 : 2;
+        const maxSpeed = mouse.isActive && distance < maxDistance ? (this.isPlanet ? 8 : 18) : 2;
         const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
         if (currentSpeed > maxSpeed) {
            this.vx = (this.vx / currentSpeed) * maxSpeed;
@@ -96,21 +104,18 @@ const BlackHoleBackground = () => {
         this.x += this.vx;
         this.y += this.vy;
 
-        // Black hole consumption (event horizon)
-        if (mouse.isActive && distance < 15) {
-            // "Respawn" particle at edge of screen
-            if (Math.random() > 0.5) {
-                this.x = Math.random() > 0.5 ? 0 : w;
-                this.y = Math.random() * h;
-            } else {
-                this.x = Math.random() * w;
-                this.y = Math.random() > 0.5 ? 0 : h;
+        if (mouse.isActive && distance < 10) {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            if (this.x > 20 && this.x < w - 20 && this.y > 20 && this.y < h - 20) {
+               // respawn at edges instead
+               if (Math.random() > 0.5) this.x = Math.random() > 0.5 ? 0 : w;
+               else this.y = Math.random() > 0.5 ? 0 : h;
             }
             this.vx = 0;
             this.vy = 0;
         }
 
-        // Screen wrap (if they drift off naturally)
         if (this.x < 0) this.x = w;
         if (this.x > w) this.x = 0;
         if (this.y < 0) this.y = h;
@@ -123,39 +128,46 @@ const BlackHoleBackground = () => {
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
+        
+        // Add a slight glow to planets
+        if (this.isPlanet) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = this.color;
+        } else {
+          ctx.shadowBlur = 0;
+        }
+        
         ctx.closePath();
       }
     }
 
     const particles: Particle[] = [];
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 350; i++) {
       particles.push(new Particle());
     }
 
     let animationFrameId: number;
     const animate = () => {
-      // Create trails by not clearing the canvas fully (opacity controls trail length)
-      // Dark background with slight transparency for motion blur
-      ctx.fillStyle = 'rgba(5, 5, 10, 0.2)'; 
+      ctx.fillStyle = 'rgba(5, 5, 10, 0.25)'; 
       ctx.fillRect(0, 0, w, h);
       
-      // Draw event horizon / black hole glow if active
       if (mouse.isActive) {
         let rect = canvas?.getBoundingClientRect();
         let relativeMouseY = mouse.y - (rect?.top || 0);
         
         ctx.beginPath();
-        const gradient = ctx.createRadialGradient(mouse.x, relativeMouseY, 0, mouse.x, relativeMouseY, 120);
-        gradient.addColorStop(0, 'rgba(0,0,0,1)'); // core
-        gradient.addColorStop(0.1, 'rgba(10, 0, 40, 0.8)'); // event horizon
-        gradient.addColorStop(0.4, 'rgba(100,0,255,0.15)'); // accretion disk glow
+        const gradient = ctx.createRadialGradient(mouse.x, relativeMouseY, 0, mouse.x, relativeMouseY, 150);
+        gradient.addColorStop(0, 'rgba(0,0,0,1)'); 
+        gradient.addColorStop(0.1, 'rgba(20, 0, 10, 0.9)'); 
+        gradient.addColorStop(0.4, 'hsla(346, 82%, 46%, 0.2)'); // Theme-matched glow
         gradient.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.arc(mouse.x, relativeMouseY, 120, 0, Math.PI * 2);
+        ctx.arc(mouse.x, relativeMouseY, 150, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
         ctx.closePath();
       }
 
+      ctx.shadowBlur = 0; // Reset shadow for efficiency
       for (let i = 0; i < particles.length; i++) {
         particles[i].update();
         particles[i].draw();

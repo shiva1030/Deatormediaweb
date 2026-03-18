@@ -164,18 +164,86 @@ const BlackHoleBackground = () => {
       ctx.fillStyle = 'rgba(2, 4, 8, 0.3)';
       ctx.fillRect(0, 0, w, h);
 
-      // Black hole glow at mouse
+      // ---- Draw accretion disk black hole at mouse ----
       if (mouse.isActive) {
         const rect = canvas?.getBoundingClientRect();
         const relY = mouse.y - (rect?.top || 0);
-        const grad = ctx.createRadialGradient(mouse.x, relY, 0, mouse.x, relY, 180);
-        grad.addColorStop(0, 'rgba(0,0,0,1)');
-        grad.addColorStop(0.08, 'rgba(10,0,5,0.95)');
-        grad.addColorStop(0.35, 'hsla(346, 82%, 46%, 0.2)');
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        const mx = mouse.x;
+        const my = relY;
+        const R = 22; // event horizon radius
+
+        // 1. Large outer glow halo
+        const outerGlow = ctx.createRadialGradient(mx, my, R, mx, my, R * 10);
+        outerGlow.addColorStop(0, 'hsla(346, 90%, 55%, 0.35)');
+        outerGlow.addColorStop(0.3, 'hsla(346, 80%, 45%, 0.12)');
+        outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.beginPath();
-        ctx.arc(mouse.x, relY, 180, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
+        ctx.arc(mx, my, R * 10, 0, Math.PI * 2);
+        ctx.fillStyle = outerGlow;
+        ctx.fill();
+        ctx.closePath();
+
+        // 2. Accretion disk — glowing elliptical rings (bottom / front)
+        const diskW = R * 3.5;
+        const diskH = R * 0.55;
+        for (let i = 6; i >= 0; i--) {
+          const p = i / 6;
+          const rx = diskW * (0.5 + p * 0.5);
+          const ry = diskH * (0.5 + p * 0.5);
+          const alpha = (1 - p) * 0.7 + 0.1;
+
+          const dg = ctx.createLinearGradient(mx - rx, my, mx + rx, my);
+          dg.addColorStop(0,    `rgba(180, 40,   0,  ${alpha * 0.4})`);
+          dg.addColorStop(0.2,  `rgba(255, 110,  15, ${alpha * 0.85})`);
+          dg.addColorStop(0.45, `rgba(255, 190,  70, ${alpha})`);
+          dg.addColorStop(0.5,  `rgba(255, 230, 140, ${alpha * 1.2})`);
+          dg.addColorStop(0.55, `rgba(255, 190,  70, ${alpha})`);
+          dg.addColorStop(0.8,  `rgba(255, 110,  15, ${alpha * 0.85})`);
+          dg.addColorStop(1,    `rgba(180, 40,   0,  ${alpha * 0.4})`);
+
+          // Front arc (below center)
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(mx - rx - 2, my, rx * 2 + 4, ry * 3);
+          ctx.clip();
+          ctx.beginPath();
+          ctx.ellipse(mx, my, rx, ry, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = dg;
+          ctx.lineWidth = ry * 0.5 + 1;
+          ctx.stroke();
+          ctx.restore();
+
+          // Back arc (top — gravitational lensing)
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(mx - rx - 2, my - ry * 3, rx * 2 + 4, ry * 3);
+          ctx.clip();
+          ctx.beginPath();
+          ctx.ellipse(mx, my, rx * 0.9, ry * 0.7, 0, Math.PI, 0, true);
+          ctx.strokeStyle = dg;
+          ctx.lineWidth = (ry * 0.3 + 1) * (1 - p * 0.5);
+          ctx.globalAlpha = 0.5;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.restore();
+        }
+
+        // 3. Photon ring — thin bright ring just outside event horizon
+        const pr = ctx.createRadialGradient(mx, my, R - 2, mx, my, R + 6);
+        pr.addColorStop(0, 'rgba(255, 220, 100, 0)');
+        pr.addColorStop(0.5, 'rgba(255, 200, 80, 0.9)');
+        pr.addColorStop(1, 'rgba(255, 120, 20, 0)');
+        ctx.beginPath();
+        ctx.arc(mx, my, R + 3, 0, Math.PI * 2);
+        ctx.strokeStyle = pr;
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.closePath();
+
+        // 4. Pure black event horizon
+        ctx.beginPath();
+        ctx.arc(mx, my, R, 0, Math.PI * 2);
+        ctx.fillStyle = '#000000';
         ctx.fill();
         ctx.closePath();
       }

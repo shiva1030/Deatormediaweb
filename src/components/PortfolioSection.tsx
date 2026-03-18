@@ -14,19 +14,71 @@ const FloatingShape = ({ className, delay = 0 }: { className: string; delay?: nu
   />
 );
 
-const portfolioItems = [
-  { title: "Social Media Campaign", category: "Social Media", color: "from-primary/80 to-primary/40", behance: "https://www.behance.net/deatordesign" },
-  { title: "E-Commerce Redesign", category: "Web Design", color: "from-secondary to-secondary/60", behance: "https://www.behance.net/deatordesign" },
-  { title: "Brand Identity System", category: "Branding", color: "from-primary/60 to-primary/20", behance: "https://www.behance.net/deatordesign" },
-  { title: "Product Launch Poster", category: "Graphic Design", color: "from-secondary/80 to-primary/40", behance: "https://www.behance.net/deatordesign" },
-  { title: "Marketing Campaign", category: "Digital Marketing", color: "from-primary/70 to-secondary/50", behance: "https://www.behance.net/deatordesign" },
-  { title: "Corporate Video", category: "Video Production", color: "from-secondary/60 to-primary/30", behance: "https://www.behance.net/deatordesign" },
-  { title: "Restaurant Branding", category: "Branding", color: "from-primary/50 to-secondary/70", behance: "https://www.behance.net/deatordesign" },
-  { title: "Fitness App UI", category: "Web Design", color: "from-secondary/90 to-primary/50", behance: "https://www.behance.net/deatordesign" },
-  { title: "Fashion Lookbook", category: "Graphic Design", color: "from-primary/90 to-secondary/40", behance: "https://www.behance.net/deatordesign" },
-  { title: "Startup Social Launch", category: "Social Media", color: "from-secondary/50 to-primary/60", behance: "https://www.behance.net/deatordesign" },
-  { title: "Event Promo Reel", category: "Video Production", color: "from-primary/40 to-secondary/80", behance: "https://www.behance.net/deatordesign" },
-  { title: "SEO Case Study", category: "Digital Marketing", color: "from-secondary/70 to-primary/70", behance: "https://www.behance.net/deatordesign" },
+type PortfolioItem = {
+  title: string;
+  category: string;
+  color: string;
+  behance: string;
+  image?: string;
+};
+
+const portfolioItems: PortfolioItem[] = [
+  { 
+    title: "Real Estate Hourding", 
+    category: "Advertising", 
+    color: "from-primary/80 to-primary/40",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/0605c0245837671.Y3JvcCwzMTcwLDI0ODAsMTY0LDA.png",
+    behance: "https://www.behance.net/deatordesign" 
+  },
+  { 
+    title: "Packaging Design", 
+    category: "Branding", 
+    color: "from-secondary to-secondary/60",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/40a24d235532419.Y3JvcCwyNzk0LDIxODYsMjAwLDA.png",
+    behance: "https://www.behance.net/deatordesign" 
+  },
+  { 
+    title: "Poster With Classic Mark", 
+    category: "Graphic Design", 
+    color: "from-primary/60 to-primary/20",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/540bbc224037487.Y3JvcCw1NDAwLDQyMjMsMCwxNDgz.jpg",
+    behance: "https://www.behance.net/deatordesign" 
+  },
+  { 
+    title: "Atonement Movie Poster", 
+    category: "Graphic Design", 
+    color: "from-secondary/80 to-primary/40",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/157ad2223597901.Y3JvcCwxMDgwLDg0NCwwLDI1MQ.png",
+    behance: "https://www.behance.net/deatordesign" 
+  },
+  { 
+    title: "Food Creative", 
+    category: "Advertising", 
+    color: "from-primary/70 to-secondary/50",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/2f7f15223194369.Y3JvcCwxMDgwLDg0NCwwLDI1MQ.jpg",
+    behance: "https://www.behance.net/deatordesign" 
+  },
+  { 
+    title: "Logo Design", 
+    category: "Branding", 
+    color: "from-secondary/60 to-primary/30",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/8b26c7223022071.Y3JvcCwxOTYzLDE1MzYsMzU5LDA.png",
+    behance: "https://www.behance.net/deatordesign" 
+  },
+  { 
+    title: "Fashion logo Branding", 
+    category: "Branding", 
+    color: "from-primary/50 to-secondary/70",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/9d0f57222772665.Y3JvcCwxMzgwLDEwODAsMjcwLDA.png",
+    behance: "https://www.behance.net/deatordesign" 
+  },
+  { 
+    title: "Magazine cover", 
+    category: "Graphic Design", 
+    color: "from-secondary/90 to-primary/50",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/34fb01220786653.Y3JvcCwxMDgwLDg0NCwwLDI1MQ.png",
+    behance: "https://www.behance.net/deatordesign" 
+  }
 ];
 
 const categories = ["All", ...Array.from(new Set(portfolioItems.map((p) => p.category)))];
@@ -153,10 +205,16 @@ const PortfolioSection = () => {
                 }`}
                 style={{ transformOrigin: "center center" }}
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.color}`} />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-primary-foreground/30 font-heading text-6xl font-black">D</span>
-                </div>
+                {item.image ? (
+                  <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                ) : (
+                  <>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${item.color}`} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-primary-foreground/30 font-heading text-6xl font-black">D</span>
+                    </div>
+                  </>
+                )}
 
                 <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/80 transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <div className="text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">

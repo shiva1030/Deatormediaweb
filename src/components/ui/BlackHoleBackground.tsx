@@ -161,81 +161,22 @@ const BlackHoleBackground = () => {
       ctx.drawImage(bgCanvas, 0, 0);
 
       // Dim overlay for motion trails
-      ctx.fillStyle = 'rgba(2, 4, 8, 0.3)';
+      ctx.fillStyle = 'rgba(2, 4, 8, 0.07)';
       ctx.fillRect(0, 0, w, h);
 
-      // ---- Draw spiral black hole at mouse ----
+      // Black hole glow at mouse
       if (mouse.isActive) {
         const rect = canvas?.getBoundingClientRect();
         const relY = mouse.y - (rect?.top || 0);
-        const mx = mouse.x;
-        const my = relY;
-        const R = 22; // event horizon radius
-
-        // 1. Large outer glow halo
-        const outerGlow = ctx.createRadialGradient(mx, my, R, mx, my, R * 10);
-        outerGlow.addColorStop(0, 'hsla(346, 90%, 55%, 0.35)');
-        outerGlow.addColorStop(0.3, 'hsla(346, 80%, 45%, 0.12)');
-        outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
+        const grad = ctx.createRadialGradient(mouse.x, relY, 0, mouse.x, relY, 200);
+        grad.addColorStop(0, 'rgba(0,0,0,1)');
+        grad.addColorStop(0.08, 'rgba(10,0,5,0.97)');
+        grad.addColorStop(0.25, 'hsla(346, 90%, 50%, 0.35)');
+        grad.addColorStop(0.55, 'hsla(346, 80%, 40%, 0.12)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.beginPath();
-        ctx.arc(mx, my, R * 10, 0, Math.PI * 2);
-        ctx.fillStyle = outerGlow;
-        ctx.fill();
-        ctx.closePath();
-
-        // 2. Animated rotating spiral arms (Archimedean spiral)
-        const numArms = 3;
-        const spiralTurns = 2.5; // how many full rotations per arm
-        const maxRadius = R * 7;
-        const rotation = time * 0.008; // slow rotation speed
-
-        for (let arm = 0; arm < numArms; arm++) {
-          const armOffset = (arm / numArms) * Math.PI * 2;
-          const steps = 120;
-
-          ctx.beginPath();
-          let started = false;
-          for (let i = 0; i <= steps; i++) {
-            const t = i / steps;
-            const angle = armOffset + rotation + t * spiralTurns * Math.PI * 2;
-            const radius = R * 1.1 + t * (maxRadius - R * 1.1);
-            const px = mx + Math.cos(angle) * radius;
-            const py = my + Math.sin(angle) * radius;
-            if (!started) { ctx.moveTo(px, py); started = true; }
-            else ctx.lineTo(px, py);
-          }
-
-          // Fade from bright inner to transparent outer
-          const spiralGrad = ctx.createRadialGradient(mx, my, R, mx, my, maxRadius);
-          spiralGrad.addColorStop(0,   'hsla(346, 100%, 75%, 0.85)');
-          spiralGrad.addColorStop(0.2, 'hsla(346, 90%,  60%, 0.6)');
-          spiralGrad.addColorStop(0.5, 'hsla(346, 80%,  50%, 0.35)');
-          spiralGrad.addColorStop(0.8, 'hsla(346, 70%,  40%, 0.15)');
-          spiralGrad.addColorStop(1,   'hsla(346, 60%,  30%, 0)');
-
-          ctx.strokeStyle = spiralGrad;
-          ctx.lineWidth = 2.5;
-          ctx.lineCap = 'round';
-          ctx.stroke();
-          ctx.closePath();
-        }
-
-        // 3. Photon ring — thin bright ring just outside event horizon
-        const pr = ctx.createRadialGradient(mx, my, R - 2, mx, my, R + 6);
-        pr.addColorStop(0, 'rgba(255, 220, 100, 0)');
-        pr.addColorStop(0.5, 'rgba(255, 200, 80, 0.9)');
-        pr.addColorStop(1, 'rgba(255, 120, 20, 0)');
-        ctx.beginPath();
-        ctx.arc(mx, my, R + 3, 0, Math.PI * 2);
-        ctx.strokeStyle = pr;
-        ctx.lineWidth = 5;
-        ctx.stroke();
-        ctx.closePath();
-
-        // 4. Pure black event horizon
-        ctx.beginPath();
-        ctx.arc(mx, my, R, 0, Math.PI * 2);
-        ctx.fillStyle = '#000000';
+        ctx.arc(mouse.x, relY, 200, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
         ctx.fill();
         ctx.closePath();
       }

@@ -78,6 +78,34 @@ const portfolioItems: PortfolioItem[] = [
     color: "from-secondary/90 to-primary/50",
     image: "https://mir-s3-cdn-cf.behance.net/projects/404/34fb01220786653.Y3JvcCwxMDgwLDg0NCwwLDI1MQ.png",
     behance: "https://www.behance.net/deatordesign" 
+  },
+  {
+    title: "Logo Branding",
+    category: "Branding",
+    color: "from-primary/60 to-secondary/40",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/7529b2222698681.Y3JvcCwxMjU4LDk4Myw3MSww.jpg",
+    behance: "https://www.behance.net/deatordesign"
+  },
+  {
+    title: "Brand Strategy Identity",
+    category: "Branding",
+    color: "from-secondary/70 to-primary/30",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/a611be222220679.Y3JvcCwxMDgwLDg0NCwwLDI1MQ.png",
+    behance: "https://www.behance.net/deatordesign"
+  },
+  {
+    title: "Poster Manipulating",
+    category: "Graphic Design",
+    color: "from-primary/70 to-secondary/70",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/d1edc1222097975.Y3JvcCwxMDgwLDg0NCwwLDI1MQ.png",
+    behance: "https://www.behance.net/deatordesign"
+  },
+  {
+    title: "Corporate Identity",
+    category: "Advertising",
+    color: "from-secondary/80 to-primary/80",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/139e95220553151.Y3JvcCwyODgxLDIyNTQsNTc3LDA.png",
+    behance: "https://www.behance.net/deatordesign"
   }
 ];
 

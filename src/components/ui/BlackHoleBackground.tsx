@@ -101,16 +101,16 @@ const BlackHoleBackground = () => {
 
         if (mouse.isActive && dist < maxD) {
           const fx = dx / dist; const fy = dy / dist;
-          this.vx += fx * force * 1.5 + fy * force * 0.6;
-          this.vy += fy * force * 1.5 - fx * force * 0.6;
+          this.vx += fx * force * 0.55 + fy * force * 0.2;
+          this.vy += fy * force * 0.55 - fx * force * 0.2;
         } else {
-          this.vx *= 0.97; this.vy *= 0.97;
-          this.vx += (Math.random() - 0.5) * 0.05;
-          this.vy += (Math.random() - 0.5) * 0.05;
+          this.vx *= 0.96; this.vy *= 0.96;
+          this.vx += (Math.random() - 0.5) * 0.03;
+          this.vy += (Math.random() - 0.5) * 0.03;
         }
 
         const sp = Math.sqrt(this.vx ** 2 + this.vy ** 2);
-        const maxSp = mouse.isActive && dist < maxD ? 16 : 1.5;
+        const maxSp = mouse.isActive && dist < maxD ? 6 : 0.8;
         if (sp > maxSp) { this.vx = (this.vx / sp) * maxSp; this.vy = (this.vy / sp) * maxSp; }
         this.x += this.vx; this.y += this.vy;
 
@@ -157,8 +157,8 @@ const BlackHoleBackground = () => {
       // Draw static bg
       ctx.drawImage(bgCanvas, 0, 0);
 
-      // Dim overlay for motion trails
-      ctx.fillStyle = 'rgba(2, 4, 8, 0.3)';
+      // Dim overlay for motion trails — slower fade for smoother trails
+      ctx.fillStyle = 'rgba(2, 4, 8, 0.18)';
       ctx.fillRect(0, 0, w, h);
 
       // Black hole glow at mouse

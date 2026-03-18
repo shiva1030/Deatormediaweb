@@ -101,8 +101,9 @@ const BlackHoleBackground = () => {
 
         if (mouse.isActive && dist < maxD) {
           const fx = dx / dist; const fy = dy / dist;
-          this.vx += fx * force * 1.5 + fy * force * 0.6;
-          this.vy += fy * force * 1.5 - fx * force * 0.6;
+          // Strong gravity + stronger swirl so stars orbit wide before spiraling in
+          this.vx += fx * force * 1.5 + fy * force * 1.2;
+          this.vy += fy * force * 1.5 - fx * force * 1.2;
         } else {
           this.vx *= 0.97; this.vy *= 0.97;
           this.vx += (Math.random() - 0.5) * 0.05;
@@ -114,10 +115,12 @@ const BlackHoleBackground = () => {
         if (sp > maxSp) { this.vx = (this.vx / sp) * maxSp; this.vy = (this.vy / sp) * maxSp; }
         this.x += this.vx; this.y += this.vy;
 
-        if (mouse.isActive && dist < 12) {
+        // Consume star only when it gets within 80px (wider orbit before disappearing)
+        if (mouse.isActive && dist < 80) {
           this.x = Math.random() > 0.5 ? 0 : w;
           this.y = Math.random() * h;
-          this.vx = 0; this.vy = 0;
+          this.vx = (Math.random() - 0.5) * 0.8;
+          this.vy = (Math.random() - 0.5) * 0.8;
         }
         if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
         if (this.y < 0) this.y = h; if (this.y > h) this.y = 0;

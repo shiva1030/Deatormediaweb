@@ -110,7 +110,7 @@ const BlackHoleBackground = () => {
         }
 
         const sp = Math.sqrt(this.vx ** 2 + this.vy ** 2);
-        const maxSp = mouse.isActive && dist < maxD ? 16 : 1.5;
+        const maxSp = mouse.isActive && dist < maxD ? 7 : 0.8;
         if (sp > maxSp) { this.vx = (this.vx / sp) * maxSp; this.vy = (this.vy / sp) * maxSp; }
         this.x += this.vx; this.y += this.vy;
 

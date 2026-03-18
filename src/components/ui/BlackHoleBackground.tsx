@@ -164,7 +164,7 @@ const BlackHoleBackground = () => {
       ctx.fillStyle = 'rgba(2, 4, 8, 0.3)';
       ctx.fillRect(0, 0, w, h);
 
-      // ---- Draw accretion disk black hole at mouse ----
+      // ---- Draw spiral black hole at mouse ----
       if (mouse.isActive) {
         const rect = canvas?.getBoundingClientRect();
         const relY = mouse.y - (rect?.top || 0);
@@ -183,49 +183,41 @@ const BlackHoleBackground = () => {
         ctx.fill();
         ctx.closePath();
 
-        // 2. Accretion disk — glowing elliptical rings (bottom / front)
-        const diskW = R * 3.5;
-        const diskH = R * 0.55;
-        for (let i = 6; i >= 0; i--) {
-          const p = i / 6;
-          const rx = diskW * (0.5 + p * 0.5);
-          const ry = diskH * (0.5 + p * 0.5);
-          const alpha = (1 - p) * 0.7 + 0.1;
+        // 2. Animated rotating spiral arms (Archimedean spiral)
+        const numArms = 3;
+        const spiralTurns = 2.5; // how many full rotations per arm
+        const maxRadius = R * 7;
+        const rotation = time * 0.008; // slow rotation speed
 
-          const dg = ctx.createLinearGradient(mx - rx, my, mx + rx, my);
-          dg.addColorStop(0,    `rgba(180, 40,   0,  ${alpha * 0.4})`);
-          dg.addColorStop(0.2,  `rgba(255, 110,  15, ${alpha * 0.85})`);
-          dg.addColorStop(0.45, `rgba(255, 190,  70, ${alpha})`);
-          dg.addColorStop(0.5,  `rgba(255, 230, 140, ${alpha * 1.2})`);
-          dg.addColorStop(0.55, `rgba(255, 190,  70, ${alpha})`);
-          dg.addColorStop(0.8,  `rgba(255, 110,  15, ${alpha * 0.85})`);
-          dg.addColorStop(1,    `rgba(180, 40,   0,  ${alpha * 0.4})`);
+        for (let arm = 0; arm < numArms; arm++) {
+          const armOffset = (arm / numArms) * Math.PI * 2;
+          const steps = 120;
 
-          // Front arc (below center)
-          ctx.save();
           ctx.beginPath();
-          ctx.rect(mx - rx - 2, my, rx * 2 + 4, ry * 3);
-          ctx.clip();
-          ctx.beginPath();
-          ctx.ellipse(mx, my, rx, ry, 0, 0, Math.PI * 2);
-          ctx.strokeStyle = dg;
-          ctx.lineWidth = ry * 0.5 + 1;
+          let started = false;
+          for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const angle = armOffset + rotation + t * spiralTurns * Math.PI * 2;
+            const radius = R * 1.1 + t * (maxRadius - R * 1.1);
+            const px = mx + Math.cos(angle) * radius;
+            const py = my + Math.sin(angle) * radius;
+            if (!started) { ctx.moveTo(px, py); started = true; }
+            else ctx.lineTo(px, py);
+          }
+
+          // Fade from bright inner to transparent outer
+          const spiralGrad = ctx.createRadialGradient(mx, my, R, mx, my, maxRadius);
+          spiralGrad.addColorStop(0,   'hsla(346, 100%, 75%, 0.85)');
+          spiralGrad.addColorStop(0.2, 'hsla(346, 90%,  60%, 0.6)');
+          spiralGrad.addColorStop(0.5, 'hsla(346, 80%,  50%, 0.35)');
+          spiralGrad.addColorStop(0.8, 'hsla(346, 70%,  40%, 0.15)');
+          spiralGrad.addColorStop(1,   'hsla(346, 60%,  30%, 0)');
+
+          ctx.strokeStyle = spiralGrad;
+          ctx.lineWidth = 2.5;
+          ctx.lineCap = 'round';
           ctx.stroke();
-          ctx.restore();
-
-          // Back arc (top — gravitational lensing)
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(mx - rx - 2, my - ry * 3, rx * 2 + 4, ry * 3);
-          ctx.clip();
-          ctx.beginPath();
-          ctx.ellipse(mx, my, rx * 0.9, ry * 0.7, 0, Math.PI, 0, true);
-          ctx.strokeStyle = dg;
-          ctx.lineWidth = (ry * 0.3 + 1) * (1 - p * 0.5);
-          ctx.globalAlpha = 0.5;
-          ctx.stroke();
-          ctx.globalAlpha = 1;
-          ctx.restore();
+          ctx.closePath();
         }
 
         // 3. Photon ring — thin bright ring just outside event horizon

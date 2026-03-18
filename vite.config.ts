@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: ["happy-lines-lick.loca.lt"],
+    allowedHosts: ["happy-lines-lick.loca.lt", "deatormediaweb.onrender.com"],
     hmr: {
       overlay: false,
     },

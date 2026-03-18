@@ -101,26 +101,29 @@ const BlackHoleBackground = () => {
 
         if (mouse.isActive && dist < maxD) {
           const fx = dx / dist; const fy = dy / dist;
-          // Strong gravity + stronger swirl so stars orbit wide before spiraling in
-          this.vx += fx * force * 1.5 + fy * force * 1.2;
-          this.vy += fy * force * 1.5 - fx * force * 1.2;
+          // Orbital mechanics: swirl >> radial so stars orbit instead of falling in
+          // Closer stars get STRONGER tangential push (like real orbital velocity)
+          const orbitalBoost = dist < 200 ? 2.0 : 1.2;
+          this.vx += fx * force * 0.7 + fy * force * orbitalBoost;
+          this.vy += fy * force * 0.7 - fx * force * orbitalBoost;
         } else {
-          this.vx *= 0.97; this.vy *= 0.97;
-          this.vx += (Math.random() - 0.5) * 0.05;
-          this.vy += (Math.random() - 0.5) * 0.05;
+          this.vx *= 0.985; this.vy *= 0.985;
+          this.vx += (Math.random() - 0.5) * 0.04;
+          this.vy += (Math.random() - 0.5) * 0.04;
         }
 
         const sp = Math.sqrt(this.vx ** 2 + this.vy ** 2);
-        const maxSp = mouse.isActive && dist < maxD ? 7 : 0.8;
+        // Allow a bit faster orbital speed but not too fast
+        const maxSp = mouse.isActive && dist < maxD ? 8 : 0.8;
         if (sp > maxSp) { this.vx = (this.vx / sp) * maxSp; this.vy = (this.vy / sp) * maxSp; }
         this.x += this.vx; this.y += this.vy;
 
-        // Consume star only when it gets within 80px (wider orbit before disappearing)
-        if (mouse.isActive && dist < 80) {
+        // Keep orbital distance — only consume stars that get very close
+        if (mouse.isActive && dist < 60) {
           this.x = Math.random() > 0.5 ? 0 : w;
           this.y = Math.random() * h;
-          this.vx = (Math.random() - 0.5) * 0.8;
-          this.vy = (Math.random() - 0.5) * 0.8;
+          this.vx = (Math.random() - 0.5) * 1.0;
+          this.vy = (Math.random() - 0.5) * 1.0;
         }
         if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
         if (this.y < 0) this.y = h; if (this.y > h) this.y = 0;

@@ -81,14 +81,14 @@ const BlackHoleBackground = () => {
           // Pure white
           this.color = `255, 255, 255`;
         }
-        this.glows = Math.random() > 0.75; // 25% of stars glow
+        this.glows = Math.random() > 0.6; // 40% of stars glow
       }
 
       update(time: number) {
         // Twinkle: radius and opacity oscillate
         const twinkle = Math.sin(time * this.twinkleSpeed + this.twinklePhase);
-        this.radius = this.baseRadius + twinkle * this.baseRadius * 0.5;
-        this.opacity = this.baseOpacity + twinkle * 0.15;
+        this.radius = this.baseRadius + twinkle * this.baseRadius * 0.8;
+        this.opacity = this.baseOpacity + twinkle * 0.25;
 
         // Gravity pull
         const dx = mouse.x - this.x;
@@ -134,11 +134,12 @@ const BlackHoleBackground = () => {
 
         if (this.glows) {
           // Soft outer glow
-          const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 4);
-          glow.addColorStop(0, `rgba(${this.color}, ${op * 0.4})`);
+          const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 6);
+          glow.addColorStop(0, `rgba(${this.color}, ${op * 0.6})`);
+          glow.addColorStop(0.4, `rgba(${this.color}, ${op * 0.15})`);
           glow.addColorStop(1, `rgba(${this.color}, 0)`);
           ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius * 4, 0, Math.PI * 2);
+          ctx.arc(this.x, this.y, this.radius * 6, 0, Math.PI * 2);
           ctx.fillStyle = glow;
           ctx.fill();
           ctx.closePath();
@@ -153,7 +154,7 @@ const BlackHoleBackground = () => {
       }
     }
 
-    const stars = Array.from({ length: 450 }, () => new Star());
+    const stars = Array.from({ length: 750 }, () => new Star());
 
     let animId: number;
     let time = 0;

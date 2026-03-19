@@ -17,7 +17,16 @@ const BlackHoleBackground = () => {
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
     };
-    const handleMouseMove = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.isActive = true; };
+    const handleMouseMove = (e: MouseEvent) => {
+      // Disable effect if mouse is in the header area (top 100px)
+      if (e.clientY < 100) {
+        mouse.isActive = false;
+        return;
+      }
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      mouse.isActive = true;
+    };
     const handleMouseLeave = () => { mouse.isActive = false; };
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);

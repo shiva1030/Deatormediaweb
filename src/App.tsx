@@ -1,11 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import- [x] Update implementation plan
-- [x] Modify BlackHoleBackground.tsx to detect header area
-- [x] Verify the change in the browser
-- [x] Push changes to GitHub
-Router, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CursorGlow from "@/components/ui/CursorGlow";

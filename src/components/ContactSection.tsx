@@ -44,8 +44,8 @@ const ContactSection = () => {
   };
 
   return (
-    <section id="contactus" className="py-24 bg-muted/30 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
+    <section id="contactus" className="py-24 bg-muted/30 relative overflow-hidden scroll-mt-24">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto px-6" ref={ref}>
         <motion.div

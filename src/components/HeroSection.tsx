@@ -20,7 +20,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center overflow-hidden bg-[#05050a]">
+    <section id="hero" className="relative min-h-screen flex items-center overflow-hidden bg-[#05050a] scroll-mt-24">
       {/* Black Hole Gravity Background */}
       <BlackHoleBackground />
       

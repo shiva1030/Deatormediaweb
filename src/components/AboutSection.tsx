@@ -15,8 +15,8 @@ const AboutSection = () => {
   const inView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="about" className="py-24 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary/3 blur-[150px]" />
+    <section id="about" className="py-24 relative overflow-hidden scroll-mt-24">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary/3 blur-[150px] pointer-events-none" />
 
       <div className="container mx-auto px-6" ref={ref}>
         <div className="grid lg:grid-cols-2 gap-16 items-center">

@@ -1,0 +1,3 @@
+tcsetattr: Interrupted system call
+Connection to a.pinggy.io closed.
+client_loop: send disconnect: Broken pipe

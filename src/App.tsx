@@ -15,7 +15,7 @@ const App = () => (
       <CursorGlow />
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/Deatormediaweb">
         <Routes>
           <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
